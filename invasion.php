@@ -15,7 +15,9 @@
 	$lines = count($fileLines);
 	//Recorriendo las lineas del archivo
 	for ($i=1; $i < $lines; $i++) { 
-		
+
+		//Removiendo salto de linea
+		$fileLines[$i] = str_replace(array("\r", "\n"), '', $fileLines[$i]);
 		$separatedLine = explode(" ", $fileLines[$i]);
 		//Tomando la informacion de la nave
 		if($i == ($positionInf + $x + 1)){
@@ -35,8 +37,9 @@
 			//Tomando las coordenadas de los centros de control
 			foreach ($separatedLine as $key => $letter) {
 
-				$letter = (int) $letter;
-				if(!(in_array($letter, $controlCenters))){
+				//$letter = (int) $letter;
+				
+				if(!(in_array($letter, $controlCenters)) && preg_match("/[a-zA-Z]/", $letter)){
 					//echo "Letra: " . $letter . "<br>";
 
 					//Creo un objeto para cada letra con sus x - y
@@ -47,6 +50,7 @@
                         "px" => 0,
                         "py" => 0
                     ]);
+
 					array_push($controlCenters, $letter);
 					array_push($cCenter[count($cCenter)-1]->x, $fil);
 					array_push($cCenter[count($cCenter)-1]->y, $key);
@@ -70,6 +74,16 @@
 					*Calculo la escala real, con la formula de
 					*((xMayor + xMenor + 1)/ 2 ) * scale;
 					*/
+					echo $center->letter . "<br>";
+					foreach ($center->x as $xs) {
+						echo $xs . "-";
+					}
+					echo "<br>";
+					foreach ($center->y as $ys) {
+						echo $ys . "-";
+					}
+
+					echo "<br>";
 					$maX = $center->x[count($center->x)-1];
 					$minX = $center->x[0];
 					$center->px = (($maX + $minX + 1)/2) * $scale;
@@ -78,7 +92,10 @@
 					$minY = $center->y[0];
 					$center->py = (($maY + $minY + 1)/2) * $scale;
 					//echo "Letra: " . $center->letter . " MayorX: " . $maX . " MenorX: " . $minX . "--" . " MayorY: " . $maY . " MenorY: " . $minY. "<br>";
-					echo $center->letter . ":" . $center->px . "," . $center->py . "<br>";
+					
+					
+					$lineOut =  $center->letter . ":" . $center->px . "," . $center->py . "\n";
+					file_put_contents($output, $lineOut, FILE_APPEND);
 				}
 			}
 			$fil++;
